@@ -1,6 +1,8 @@
 
 # OpenAuto
 
+Note : this is a fork of https://github.com/f1xpl/openauto adapted for my own needs.
+
 ### Support project
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HXE5ESDR4U4)
 

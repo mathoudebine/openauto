@@ -157,13 +157,13 @@ void AndroidAutoEntity::onServiceDiscoveryRequest(const aasdk::proto::messages::
 
     aasdk::proto::messages::ServiceDiscoveryResponse serviceDiscoveryResponse;
     serviceDiscoveryResponse.mutable_channels()->Reserve(256);
-    serviceDiscoveryResponse.set_head_unit_name("OpenAuto");
+    serviceDiscoveryResponse.set_head_unit_name(configuration_->getHeadUnitName());
     serviceDiscoveryResponse.set_car_model("Universal");
     serviceDiscoveryResponse.set_car_year("2018");
     serviceDiscoveryResponse.set_car_serial("20180301");
     serviceDiscoveryResponse.set_left_hand_drive_vehicle(configuration_->getHandednessOfTrafficType() == configuration::HandednessOfTrafficType::LEFT_HAND_DRIVE);
-    serviceDiscoveryResponse.set_headunit_manufacturer("f1x");
-    serviceDiscoveryResponse.set_headunit_model("OpenAuto Autoapp");
+    serviceDiscoveryResponse.set_headunit_manufacturer(configuration_->getHeadUnitManufacturer());
+    serviceDiscoveryResponse.set_headunit_model(configuration_->getHeadUnitModel());
     serviceDiscoveryResponse.set_sw_build("1");
     serviceDiscoveryResponse.set_sw_version("1.0");
     serviceDiscoveryResponse.set_can_play_native_media_during_vr(false);
@@ -227,8 +227,9 @@ void AndroidAutoEntity::onNavigationFocusRequest(const aasdk::proto::messages::N
     controlServiceChannel_->receive(this->shared_from_this());
 }
 
-void AndroidAutoEntity::onPingResponse(const aasdk::proto::messages::PingResponse&)
+void AndroidAutoEntity::onPingResponse(const aasdk::proto::messages::PingResponse& response)
 {
+    OPENAUTO_LOG(info) << "[AndroidAutoEntity] Ping response, timestamp: "  << response.timestamp();
     pinger_->pong();
     controlServiceChannel_->receive(this->shared_from_this());
 }
@@ -272,6 +273,8 @@ void AndroidAutoEntity::sendPing()
     promise->then([]() {}, std::bind(&AndroidAutoEntity::onChannelError, this->shared_from_this(), std::placeholders::_1));
 
     aasdk::proto::messages::PingRequest request;
+    auto timestamp = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
+    request.set_timestamp(timestamp.count());
     controlServiceChannel_->sendPingRequest(request, std::move(promise));
 }
 
